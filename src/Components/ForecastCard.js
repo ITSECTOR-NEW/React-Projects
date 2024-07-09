@@ -96,6 +96,11 @@ const getOverallCondition = (forecasts) => {
   );
 };
 
+const getAverageTemperature = (forecasts) => {
+  const totalTemp = forecasts.reduce((sum, forecast) => sum + forecast.main.temp, 0);
+  return (totalTemp / forecasts.length).toFixed(1);
+};
+
 const ForecastCard = ({ forecastData }) => {
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [chartType, setChartType] = useState("line");
@@ -157,6 +162,9 @@ const ForecastCard = ({ forecastData }) => {
                   )}
                   <Typography variant="body2">
                     {getOverallCondition(day.forecasts)}
+                  </Typography>
+                  <Typography variant="body2">
+                    {getAverageTemperature(day.forecasts)}°C
                   </Typography>
                 </Box>
               </Paper>
