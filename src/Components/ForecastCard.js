@@ -7,8 +7,6 @@ import {
   Grid,
   Paper,
   Box,
-  Tabs,
-  Tab,
   ToggleButton,
   ToggleButtonGroup,
 } from "@mui/material";
@@ -96,8 +94,12 @@ const getOverallCondition = (forecasts) => {
   );
 };
 
+const getAverageTemperature = (forecasts) => {
+  const totalTemp = forecasts.reduce((sum, forecast) => sum + forecast.main.temp, 0);
+  return (totalTemp / forecasts.length).toFixed(1);
+};
+
 const ForecastCard = ({ forecastData }) => {
-  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [chartType, setChartType] = useState("line");
 
   if (!forecastData || !forecastData.list) {
@@ -129,47 +131,34 @@ const ForecastCard = ({ forecastData }) => {
   });
 
   return (
-    <AnimatedCard
-      elevation={1}
-      sx={{ maxWidth: 800, width: "100%", marginTop: 4 }}
-    >
+    <AnimatedCard elevation={1} sx={{ maxWidth: "100%", width: "100%", marginTop: 4 }}>
       <CardContent>
-        <AnimatedTypography
-          variant="h5"
-          component="div"
-          style={{ fontSize: "25px" }}
-        >
+        <AnimatedTypography variant="h5" component="div" style={{ fontSize: "1.5rem" }}>
           Next 5-Days Forecast
         </AnimatedTypography>
         <Grid container spacing={2} style={{ marginTop: "0px" }}>
           {groupedForecast.map((day, index) => (
             <Grid item key={index} xs={12} sm={6} md={4}>
-              <Paper
-                elevation={0}
-                style={{ padding: "10px", marginBottom: "10px" }}
-              >
+              <Paper elevation={0} style={{ padding: "10px", marginBottom: "10px" }}>
                 <Box display="flex" flexDirection="column" alignItems="center">
                   <Typography variant="h6">{formatDate(day.date)}</Typography>
                   {weatherIcons[getOverallCondition(day.forecasts)] || (
-                    <CloudQueueIcon
-                      style={{ fontSize: "2rem", color: "grey" }}
-                    />
+                    <CloudQueueIcon style={{ fontSize: "2rem", color: "grey" }} />
                   )}
                   <Typography variant="body2">
                     {getOverallCondition(day.forecasts)}
+                  </Typography>
+                  <Typography variant="body2">
+                    {getAverageTemperature(day.forecasts)}°C
                   </Typography>
                 </Box>
               </Paper>
             </Grid>
           ))}
         </Grid>
-        <Box mt={3}>
-          <AnimatedTypography
-            variant="h5"
-            component="div"
-            style={{ fontSize: "22px" }}
-          >
-            Temperature Trend (Next 5 Days){" "}
+        <Box mt={3} style={{ width: "100%", overflowX: "auto" }}>
+          <AnimatedTypography variant="h5" component="div" style={{ fontSize: "1.25rem" }}>
+            Temperature Trend (Next 5 Days)
           </AnimatedTypography>
           <ToggleButtonGroup
             value={chartType}
@@ -184,30 +173,27 @@ const ForecastCard = ({ forecastData }) => {
               Bar Chart
             </ToggleButton>
           </ToggleButtonGroup>
-          {chartType === "line" ? (
-            <LineChart width={700} height={350} data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="temperature"
-                stroke="#8884d8"
-                activeDot={{ r: 8 }}
-              />
-            </LineChart>
-          ) : (
-            <BarChart width={700} height={350} data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="temperature" fill="#8884d8" />
-            </BarChart>
-          )}
+          <Box mt={2} style={{ width: "100%", height: "auto" }}>
+            {chartType === "line" ? (
+              <LineChart width={window.innerWidth < 600 ? window.innerWidth - 40 : 700} height={350} data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="temperature" stroke="#8884d8" activeDot={{ r: 8 }} />
+              </LineChart>
+            ) : (
+              <BarChart width={window.innerWidth < 600 ? window.innerWidth - 40 : 700} height={350} data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="temperature" fill="#8884d8" />
+              </BarChart>
+            )}
+          </Box>
         </Box>
       </CardContent>
     </AnimatedCard>
